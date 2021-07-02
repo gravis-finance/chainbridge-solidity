@@ -56,20 +56,28 @@ async function main() {
   const bridge_contract = await ethers.getContractFactory('Bridge');
   const bridge_args = [CHAIN_ID, RELAYERS, THRESHOLD, FEE, EXPIRY];
   const bridge = await bridge_contract.deploy(...bridge_args);
-  //const bridge = await bridge_contract.attach('0x9f0757BA8D0AE6Afd3dCED9b6b8Db15892EB9Cf1');
+  //const bridge = await bridge_contract.attach('0xAF0bFFc6A4B98f4F89474bE75b35f81A77D79e67');
   log('✓ Bridge deployed at', mark(bridge.address));
 
   const erc20Handler_contract = await ethers.getContractFactory('ERC20Handler');
   const erc20Handler_args = [bridge.address, [], [], []];
   const erc20Handler = await erc20Handler_contract.deploy(...erc20Handler_args);
-  //const erc20Handler = await erc20Handler_contract.attach('0x05B1afB0a59d71855d06D984bB9D0BE9313Cd28c');
+  //const erc20Handler = await erc20Handler_contract.attach('0x1E02523B0e632C84e8C3FC2d8e99FFDD44DB07D2');
   log('✓ ERC20 handler deployed at', mark(erc20Handler.address));
 
   const tx = await bridge.adminSetResource(erc20Handler.address, RESOURCE_ID, ERC20_TOKEN);
   log('✓ Resource set at tx:', tx.hash);
+  await tx.wait();
 
   const tx2 = await bridge.adminSetBurnable(erc20Handler.address, ERC20_TOKEN);
   log('✓ Token set to be burnable at tx:', tx2.hash);
+  await tx2.wait();
+
+  const token_contract = await ethers.getContractFactory('ERC20Mock');
+  const token = await token_contract.attach(ERC20_TOKEN);
+  const tx3 = await token.grantRole(await token.MINTER_ROLE(), erc20Handler.address);
+  log('✓ Minter role granted at tx:', tx3.hash);
+  await tx3.wait();
 
   try {
     await hre.run("verify:verify", {
