@@ -17,7 +17,8 @@
     "generate-types": "npm run generate-types:ethers",
     "generate-types:ethers": "npx typechain \"build/contracts/Bridge.json\" --target=ethers-v5 --outDir src/ethers",
     "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage"
+    "coverage": "npx hardhat coverage",
+    "deploy": "npx hardhat run scripts/deploy.js"
   },
   "author": "Chainsafe Systems",
   "license": "GPL-3.0-only",

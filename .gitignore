@@ -12,3 +12,4 @@ ganache-cli/
 dist/
 artifacts/
 cache/
+local.json
