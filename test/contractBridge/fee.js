@@ -120,7 +120,7 @@ contract('Bridge - [fee]', async (accounts) => {
         )
         b1 = await web3.eth.getBalance(accounts[1]);
         b2 = await web3.eth.getBalance(accounts[2]);
-        assert.equal(b1, Ethers.utils.bigNumberify(b1Before).add(payout));
-        assert.equal(b2, Ethers.utils.bigNumberify(b2Before).add(payout));
+        assert.equal(b1, ethers.BigNumber.from(b1Before).add(payout));
+        assert.equal(b2, ethers.BigNumber.from(b2Before).add(payout));
     })
 });

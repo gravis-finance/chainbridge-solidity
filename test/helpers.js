@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: LGPL-3.0-only
  */
 
- const Ethers = require('ethers');
+ const Ethers = require('hardhat').ethers;
 
  const blankFunctionSig = '0x00000000';
  const blankFunctionDepositerOffset = 0;
  const AbiCoder = new Ethers.utils.AbiCoder;
 
  const toHex = (covertThis, padding) => {
-    return Ethers.utils.hexZeroPad(Ethers.utils.hexlify(covertThis), padding);
+   if (padding === 0) return '';
+   return Ethers.utils.hexZeroPad(Ethers.utils.hexlify(covertThis), padding);
  };
 
  const abiEncode = (valueTypes, values) => {
@@ -39,10 +40,11 @@ const createERC721DepositProposalData = (
         toHex(metaData, lenMetaData).substr(2)     // metaData                      (?? bytes)
 };
 
-const advanceBlock = () => {
-    let provider = new Ethers.providers.JsonRpcProvider();
-    const time = Math.floor(Date.now() / 1000);
-    return provider.send("evm_mine", [time]);
+const advanceBlock = async () => {
+  let provider = Ethers.provider;
+  const block = await provider.getBlock();
+  const time = block.timestamp + 1;
+  await provider.send("evm_mine", [time]);
 }
 
 const createGenericDepositData = (hexMetaData) => {
@@ -57,7 +59,7 @@ const createGenericDepositData = (hexMetaData) => {
 };
 
 const createResourceID = (contractAddress, chainID) => {
-    return toHex(contractAddress + toHex(chainID, 0).substr(2), 32)
+    return toHex(contractAddress + toHex(chainID, 2).substr(2), 32)
 };
 
 const assertObjectsMatch = (expectedObj, actualObj) => {
