@@ -1,6 +1,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "../interfaces/IBridge.sol";
 import "../interfaces/IDepositExecute.sol";
 import "./HandlerHelpers.sol";
 import "../ERC20Safe.sol";
@@ -11,6 +12,8 @@ import "../ERC20Safe.sol";
     @notice This contract is intended to be used with the Bridge contract.
  */
 contract ERC20Handler is IDepositExecute, HandlerHelpers, ERC20Safe {
+    using SafeMath for uint256;
+
     struct DepositRecord {
         address _tokenAddress;
         uint8   _destinationChainID;
@@ -19,6 +22,8 @@ contract ERC20Handler is IDepositExecute, HandlerHelpers, ERC20Safe {
         address _depositer;
         uint    _amount;
     }
+
+    uint256 constant FEE_BASEPOINT = 10e6;  // fee is in ppm
 
     // destId => depositNonce => Deposit Record
     mapping (uint8 => mapping(uint64 => DepositRecord)) public _depositRecords;
@@ -101,10 +106,13 @@ contract ERC20Handler is IDepositExecute, HandlerHelpers, ERC20Safe {
         address tokenAddress = _resourceIDToTokenContractAddress[resourceID];
         require(_contractWhitelist[tokenAddress], "provided tokenAddress is not whitelisted");
 
+
+        uint256 fee = IBridge(_bridgeAddress)._fee();
+        uint256 total = amount.add(amount.mul(fee).div(FEE_BASEPOINT));
         if (_burnList[tokenAddress]) {
-            burnERC20(tokenAddress, depositer, amount);
+            burnERC20(tokenAddress, depositer, total);
         } else {
-            lockERC20(tokenAddress, depositer, address(this), amount);
+            lockERC20(tokenAddress, depositer, address(this), total);
         }
 
         _depositRecords[destinationChainID][depositNonce] = DepositRecord(
