@@ -44,7 +44,7 @@ module.exports = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       accounts: local.accounts || [],
       bridge_chain_id: 1,
-      relayers: ['0x9793Dd93D46F153a2A879165cd163A01b54d8A00'],
+      relayers: ['0xc95161f60b73896508F2a95aA551C0Af94616634'],
       fee: 3000,
       resource_id: '0x000000000000000000000000000000c76ebe4a02bbc34786d860b355f5a5ce00',
       erc20_token: '0x636CFe526cDd51bB7aa885FdAf4F8615Fe3D5530',
@@ -53,7 +53,7 @@ module.exports = {
       url: "https://http-testnet.hecochain.com",
       accounts: local.accounts || [],
       bridge_chain_id: 2,
-      relayers: ['0x9793Dd93D46F153a2A879165cd163A01b54d8A00'],
+      relayers: ['0xc95161f60b73896508F2a95aA551C0Af94616634'],
       fee: 3000,
       resource_id: '0x000000000000000000000000000000c76ebe4a02bbc34786d860b355f5a5ce00',
       erc20_token: '0x3093F6Dd67d7f77281f8353c970C6b30A2b587a8',
@@ -61,7 +61,7 @@ module.exports = {
   },
 
   etherscan: {
-    apiKey: local.hecoscan_api, //local.etherscan_api,
+    apiKey: local.etherscan_api, //local.hecoscan_api,
   },
 
   solidity: {

@@ -1,3 +1,6 @@
+//
+// [DEPLOY=1] npm run deploy bsc-testnet
+//
 const hre = require("hardhat");
 
 const errors = [];
@@ -53,7 +56,20 @@ async function main() {
   const bridge_contract = await ethers.getContractFactory('Bridge');
   const bridge_args = [CHAIN_ID, RELAYERS, THRESHOLD, FEE, EXPIRY];
   const bridge = await bridge_contract.deploy(...bridge_args);
+  //const bridge = await bridge_contract.attach('0x9f0757BA8D0AE6Afd3dCED9b6b8Db15892EB9Cf1');
   log('✓ Bridge deployed at', mark(bridge.address));
+
+  const erc20Handler_contract = await ethers.getContractFactory('ERC20Handler');
+  const erc20Handler_args = [bridge.address, [], [], []];
+  const erc20Handler = await erc20Handler_contract.deploy(...erc20Handler_args);
+  //const erc20Handler = await erc20Handler_contract.attach('0x05B1afB0a59d71855d06D984bB9D0BE9313Cd28c');
+  log('✓ ERC20 handler deployed at', mark(erc20Handler.address));
+
+  const tx = await bridge.adminSetResource(erc20Handler.address, RESOURCE_ID, ERC20_TOKEN);
+  log('✓ Resource set at tx:', tx.hash);
+
+  const tx2 = await bridge.adminSetBurnable(erc20Handler.address, ERC20_TOKEN);
+  log('✓ Token set to be burnable at tx:', tx2.hash);
 
   try {
     await hre.run("verify:verify", {
@@ -61,25 +77,16 @@ async function main() {
       constructorArguments: bridge_args
     })
   } catch (err) {
-    log("WARNING: Verification failed:", err.name);
+    log("WARNING: Verification failed:", err);
   }
-
-  const erc20Handler_contract = await ethers.getContractFactory('ERC20Handler');
-  const erc20Handler_args = [bridge.address, [], [], [ERC20_TOKEN]];
-  const erc20Handler = await erc20Handler_contract.deploy(...erc20Handler_args);
-  log('✓ ERC20 handler deployed at', mark(erc20Handler.address));
-
   try {
     await hre.run("verify:verify", {
       address: erc20Handler.address,
       constructorArguments: erc20Handler_args
     })
   } catch (err) {
-    log("WARNING: Verification failed:", err.name);
+    log("WARNING: Verification failed:", err);
   }
-
-  const tx = await bridge.adminSetResource(erc20Handler.address, RESOURCE_ID, ERC20_TOKEN);
-  log('✓ Resource set at tx:', tx.hash);
 
   log('Final balance:', (await hre.ethers.provider.getBalance(deployer.address)).toString());
   log('All done!');

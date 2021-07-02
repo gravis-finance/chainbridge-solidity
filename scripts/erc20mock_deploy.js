@@ -1,5 +1,5 @@
 //
-// DEPLOY=1 npx hardhat run scripts/erc20mock_deploy.js --network bsc-testnet
+// [DEPLOY=1] npx hardhat run scripts/erc20mock_deploy.js --network bsc-testnet
 //
 const hre = require("hardhat");
 
@@ -29,7 +29,7 @@ async function main() {
   const erc20_contract = await ethers.getContractFactory('ERC20Mock');
   const erc20_args = ["Gravis test token", "tGRVX"];
   const erc20 = await erc20_contract.deploy(...erc20_args);
-  //const erc20 = await erc20_contract.attach('0x3093F6Dd67d7f77281f8353c970C6b30A2b587a8');
+  //const erc20 = await erc20_contract.attach('0x937A425Ec8a47644667bFe2b807542f9e2132D73');
   log('✓ ERC20 deployed at', mark(erc20.address));
 
   try {
