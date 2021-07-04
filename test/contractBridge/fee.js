@@ -79,38 +79,36 @@ contract('Bridge - [fee]', async (accounts) => {
         )
     });
 
-    it('deposit passes if valid amount supplied', async () => {
+
+  it('deposit passes if valid amount supplied', async () => {
         // current fee is set to 0
         assert.equal(await BridgeInstance._fee.call(), 0)
-        // Change fee to 0.5 ether
-        await BridgeInstance.adminChangeFee(Ethers.utils.parseEther("0.5"), { from: relayer })
-        assert.equal(web3.utils.fromWei((await BridgeInstance._fee.call()), "ether"), "0.5");
+        // Change fee to 0.5% (in ppt)
+        await BridgeInstance.adminChangeFee(5000, { from: relayer })
+        assert.equal(await BridgeInstance._fee.call(), 5000);
 
         await TruffleAssert.passes(
             BridgeInstance.deposit(
                 destinationChainID,
                 resourceID,
                 depositData,
-                {
-                    value: Ethers.utils.parseEther("0.5")
-                }
             )
         )
     });
 
     it('distribute fees', async () => {
-        await BridgeInstance.adminChangeFee(Ethers.utils.parseEther("1"), { from: relayer });
-        assert.equal(web3.utils.fromWei((await BridgeInstance._fee.call()), "ether"), "1");
+        await BridgeInstance.adminChangeFee(3000, { from: relayer });
+        assert.equal(await BridgeInstance._fee.call(), 3000);
 
         // check the balance is 0
         assert.equal(web3.utils.fromWei((await web3.eth.getBalance(BridgeInstance.address)), "ether"), "0");
-        await BridgeInstance.deposit(destinationChainID, resourceID, depositData, {value: Ethers.utils.parseEther("1")})
-        assert.equal(web3.utils.fromWei((await web3.eth.getBalance(BridgeInstance.address)), "ether"), "1");
+        await BridgeInstance.deposit(destinationChainID, resourceID, depositData)
+        assert.equal(web3.utils.fromWei((await web3.eth.getBalance(BridgeInstance.address)), "ether"), "0");
 
         let b1Before = await web3.eth.getBalance(accounts[1]);
         let b2Before = await web3.eth.getBalance(accounts[2]);
 
-        let payout = Ethers.utils.parseEther("0.5")
+        let payout = Ethers.utils.parseEther("0")
         // Transfer the funds
         TruffleAssert.passes(
             await BridgeInstance.transferFunds(

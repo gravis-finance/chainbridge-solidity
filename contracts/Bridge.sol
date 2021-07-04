@@ -308,9 +308,7 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         @param data Additional data to be passed to specified handler.
         @notice Emits {Deposit} event.
      */
-    function deposit(uint8 destinationChainID, bytes32 resourceID, bytes calldata data) external payable whenNotPaused {
-        require(msg.value == _fee, "Incorrect fee supplied");
-
+    function deposit(uint8 destinationChainID, bytes32 resourceID, bytes calldata data) external whenNotPaused {
         address handler = _resourceIDToHandlerAddress[resourceID];
         require(handler != address(0), "resourceID not mapped to handler");
 
